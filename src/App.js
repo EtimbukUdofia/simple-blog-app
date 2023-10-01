@@ -9,39 +9,36 @@ import PostPage from "./PostPage";
 import About from "./About";
 import Missing from "./Missing";
 import format from "date-fns/format";
+import api from './api/posts';
 
 function App() {
-  const [posts, setPost] = useState([
-    {
-      id: 1,
-      title: "My First Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent quis malesuada felis, vel sagittis lacus.",
-    },
-    {
-      id: 2,
-      title: "My 2nd Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent quis malesuada felis, vel sagittis lacus.",
-    },
-    {
-      id: 3,
-      title: "My 3rd Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent quis malesuada felis, vel sagittis lacus.",
-    },
-    {
-      id: 4,
-      title: "My 4th Post",
-      datetime: "July 01, 2021 11:17:36 AM",
-      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent quis malesuada felis, vel sagittis lacus.",
-    },
-  ]);
+  const [posts, setPost] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [postTitle, setPostTitle] = useState("");
   const [postBody, setPostBody] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await api.get('/posts');
+        setPost(response.data);
+        console.log(posts);
+      } catch (err) {
+        if (err.response) {
+        
+          //Not in the 200 respons range
+          console.log(err)
+          console.log(err.response.data);
+          console.log(err.response.status);
+        } else {
+          console.log(`Error: ${err.message}`)
+        }
+      }
+    }
+    fetchPosts();
+  },[])
 
   useEffect(() => {
     const filteredResults = posts.filter(
@@ -57,11 +54,15 @@ function App() {
     const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
     const datetime = format(new Date(), "MMMM dd, yyyy pp");
     const newPost = { id, title: postTitle, datetime, body: postBody };
-    const allPosts = [...posts, newPost];
-    setPost(allPosts);
-    setPostTitle("");
-    setPostBody("");
-    navigate("/");
+    try {
+      const allPosts = [...posts, newPost];
+      setPost(allPosts);
+      setPostTitle("");
+      setPostBody("");
+      navigate("/");
+    } catch (err) {
+      console.log(`Error: ${err.message}`);
+    }
   };
 
   const handleDelete = (id) => {
