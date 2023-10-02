@@ -41,7 +41,7 @@ function App() {
       }
     }
     fetchPosts();
-  },[posts])
+  },[])
 
   useEffect(() => {
     const filteredResults = posts.filter(
